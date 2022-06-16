@@ -3,9 +3,9 @@ package main
 import (
 	"fmt"
 	"github.com/alexedwards/scs/v2"
-	"github.com/mrnbort/bookings/pkg/config"
-	"github.com/mrnbort/bookings/pkg/handlers"
-	"github.com/mrnbort/bookings/pkg/render"
+	"github.com/mrnbort/bookings/internal/config"
+	"github.com/mrnbort/bookings/internal/handlers"
+	"github.com/mrnbort/bookings/internal/render"
 	"log"
 	"net/http"
 	"time"
@@ -16,12 +16,12 @@ const portNumber = ":8080"
 var app config.AppConfig
 var session *scs.SessionManager
 
-// main is the main application function
+// main is the main function
 func main() {
-
 	// change this to true when in production
 	app.InProduction = false
 
+	// set up the session
 	session = scs.New()
 	session.Lifetime = 24 * time.Hour
 	session.Cookie.Persist = true
@@ -40,9 +40,10 @@ func main() {
 
 	repo := handlers.NewRepo(&app)
 	handlers.NewHandlers(repo)
+
 	render.NewTemplates(&app)
 
-	fmt.Println(fmt.Sprintf("Starting application on port %s", portNumber))
+	fmt.Println(fmt.Sprintf("Staring application on port %s", portNumber))
 
 	srv := &http.Server{
 		Addr:    portNumber,
@@ -50,5 +51,7 @@ func main() {
 	}
 
 	err = srv.ListenAndServe()
-	log.Fatal(err)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
